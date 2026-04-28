@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Anniversary, My Love 💖</title>
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:    #ff4b6e;
+      --blush:   #ffb3c1;
+      --cream:   #fff5f7;
+      --deep:    #2d1b2e;
+      --gold:    #f7c948;
+      --serif:   'Georgia', serif;
+      --sans:    'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--deep);
+      color: #fff;
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    /* ─── Canvas ─── */
+    #heartCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Sections ─── */
+    section {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+    }
+
+    /* ─── Hero ─── */
+    #hero {
+      text-align: center;
+      gap: 20px;
+    }
+
+    .hero-sub {
+      font-size: clamp(0.85rem, 2vw, 1rem);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 8vw, 5.5rem);
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--blush) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      animation: fadeUp 1s 0.6s forwards;
+    }
+
+    .hero-name {
+      font-family: var(--serif);
+      font-size: clamp(2.8rem, 10vw, 7rem);
+      color: var(--rose);
+      -webkit-text-fill-color: var(--rose);
+      font-style: italic;
+      opacity: 0;
+      animation: fadeUp 1s 0.9s forwards;
+    }
+
+    .scroll-hint {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 1s 1.8s forwards;
+      cursor: pointer;
+      color: var(--blush);
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+    }
+
+    .scroll-hint span { font-size: 1.5rem; animation: bounce 1.6s infinite; }
+
+    /* ─── Countdown ─── */
+    #countdown {
+      background: radial-gradient(ellipse at center, #3d1040 0%, var(--deep) 70%);
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--blush);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .timer-grid {
+      display: flex;
+      gap: clamp(16px, 4vw, 40px);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .timer-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 28px 32px;
+      min-width: 100px;
+      text-align: center;
+      backdrop-filter: blur(6px);
+      transition: transform 0.3s;
+    }
+
+    .timer-card:hover { transform: translateY(-6px); }
+
+    .timer-num {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--blush);
+      margin-top: 8px;
+    }
+
+    /* ─── Memories ─── */
+    #memories {
+      background: linear-gradient(180deg, var(--deep) 0%, #1a0a1e 100%);
+      gap: 0;
+    }
+
+    .timeline {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, var(--rose), transparent);
+      transform: translateX(-50%);
+    }
+
+    .memory-card {
+      position: relative;
+      width: 46%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255, 75, 110, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 48px;
+      opacity: 0;
+      transition: opacity 0.6s, transform 0.6s;
+    }
+
+    .memory-card.left  { align-self: flex-start; transform: translateX(-30px); }
+    .memory-card.right { align-self: flex-end;   transform: translateX(30px);  }
+    .memory-card.visible { opacity: 1; transform: translateX(0); }
+
+    .memory-card::after {
+      content: '❤';
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      font-size: 1.1rem;
+      color: var(--rose);
+    }
+
+    .memory-card.left::after  { right: -36px; }
+    .memory-card.right::after { left: -36px;  }
+
+    .memory-date {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .memory-text {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #f0d8e0;
+    }
+
+    /* ─── Proposal ─── */
+    #proposal {
+      background: radial-gradient(ellipse at center, #4a0820 0%, var(--deep) 70%);
+      text-align: center;
+      gap: 32px;
+    }
+
+    .big-question {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 7vw, 5rem);
+      line-height: 1.2;
+      max-width: 720px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, var(--rose), #c0223e);
+      color: #fff;
+      border: none;
+      padding: 18px 48px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      font-family: var(--serif);
+      font-style: italic;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(255,75,110,0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-yes:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 50px rgba(255,75,110,0.8);
+    }
+
+    .btn-no {
+      background: transparent;
+      color: var(--blush);
+      border: 1px solid rgba(255,179,193,0.4);
+      padding: 18px 48px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.15s;
+      position: relative;
+    }
+
+    .response-message {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      color: var(--gold);
+      display: none;
+      animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    /* ─── Letter ─── */
+    #letter {
+      background: linear-gradient(180deg, #1a0a1e 0%, var(--deep) 100%);
+    }
+
+    .letter-box {
+      max-width: 600px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,179,193,0.15);
+      border-radius: 24px;
+      padding: clamp(28px, 6vw, 56px);
+      font-family: var(--serif);
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      line-height: 1.9;
+      color: #f0d8e0;
+    }
+
+    .letter-box p { margin-bottom: 20px; }
+
+    .letter-signature {
+      font-size: 1.5rem;
+      font-style: italic;
+      color: var(--rose);
+      margin-top: 12px;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 32px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.2em;
+    }
+
+    /* ─── Confetti ─── */
+    .confetti-piece {
+      position: fixed;
+      width: 10px; height: 10px;
+      top: -20px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall linear forwards;
+    }
+
+    /* ─── Keyframes ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(8px); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes confettiFall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 560px) {
+      .timeline::before { left: 20px; }
+      .memory-card { width: 80%; align-self: flex-end !important; }
+      .memory-card.left::after, .memory-card.right::after { left: -28px; right: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating hearts canvas -->
+<canvas id="heartCanvas"></canvas>
+
+<!-- ── HERO ─────────────────────────────────────────── -->
+<section id="hero">
+  <p class="hero-sub">Happy Anniversary</p>
+  <h1 class="hero-title">To the one who<br>owns my heart</h1>
+  <p class="hero-name" id="herName">My Love</p>
+  <div class="scroll-hint" onclick="document.getElementById('countdown').scrollIntoView({behavior:'smooth'})">
+    <span>↓</span>
+    SCROLL
+  </div>
+</section>
+
+<!-- ── COUNTDOWN ───────────────────────────────────── -->
+<section id="countdown">
+  <p class="section-label">Every second with you matters</p>
+  <h2 class="section-title">Time We've Shared Together</h2>
+  <div class="timer-grid">
+    <div class="timer-card"><div class="timer-num" id="tYears">0</div><div class="timer-label">Years</div></div>
+    <div class="timer-card"><div class="timer-num" id="tMonths">0</div><div class="timer-label">Months</div></div>
+    <div class="timer-card"><div class="timer-num" id="tDays">0</div><div class="timer-label">Days</div></div>
+    <div class="timer-card"><div class="timer-num" id="tHours">0</div><div class="timer-label">Hours</div></div>
+    <div class="timer-card"><div class="timer-num" id="tMins">0</div><div class="timer-label">Minutes</div></div>
+    <div class="timer-card"><div class="timer-num" id="tSecs">0</div><div class="timer-label">Seconds</div></div>
+  </div>
+</section>
+
+<!-- ── MEMORIES ────────────────────────────────────── -->
+<section id="memories">
+  <p class="section-label">Our story</p>
+  <h2 class="section-title">Moments I Treasure</h2>
+  <div class="timeline">
+    <div class="memory-card left">
+      <div class="memory-date">The Beginning</div>
+      <p class="memory-text">The day I first saw you, something shifted inside me — like the universe quietly rearranged itself just so our paths could cross.</p>
+    </div>
+    <div class="memory-card right">
+      <div class="memory-date">First Laugh</div>
+      <p class="memory-text">You laughed at something silly and I thought — I want to hear that sound every single day for the rest of my life.</p>
+    </div>
+    <div class="memory-card left">
+      <div class="memory-date">First Adventure</div>
+      <p class="memory-text">Side by side, exploring somewhere new — I realised home isn't a place. It's wherever you are standing next to me.</p>
+    </div>
+    <div class="memory-card right">
+      <div class="memory-date">The Quiet Moments</div>
+      <p class="memory-text">Sitting in comfortable silence, doing nothing in particular — those were secretly my favourite times with you.</p>
+    </div>
+    <div class="memory-card left">
+      <div class="memory-date">Today</div>
+      <p class="memory-text">One more beautiful year written. Every chapter better than the last, and I cannot wait to keep writing the rest with you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROPOSAL ────────────────────────────────────── -->
+<section id="proposal">
+  <p class="section-label">The question</p>
+  <h2 class="big-question">Will you keep choosing me,<br>every single day,<br>forever? 💍</h2>
+  <div class="btn-row" id="btnRow">
+    <button class="btn-yes" onclick="onYes()">Yes, always! 💖</button>
+    <button class="btn-no" id="btnNo" onmouseover="escapNo(this)" onclick="onYes()">Maybe no…</button>
+  </div>
+  <div class="response-message" id="responseMsg"></div>
+</section>
+
+<!-- ── LETTER ──────────────────────────────────────── -->
+<section id="letter">
+  <p class="section-label">From my heart</p>
+  <div class="letter-box">
+    <p>My dearest,</p>
+    <p>A year ago — or maybe many years ago — something extraordinary happened: you became a part of my world. And every morning since then has felt like a gift I never expected to deserve.</p>
+    <p>You are the reason ordinary days feel like the most beautiful adventures. The reason I smile at my phone for no apparent reason. The reason I believe in something greater than luck.</p>
+    <p>Thank you for your patience, your warmth, your laughter, and your love. Thank you for choosing me, again and again, in all the small and enormous ways that count.</p>
+    <p>I promise to love you through every season, to hold your hand through every storm, and to make sure you never forget just how deeply, endlessly cherished you are.</p>
+    <p>Happy Anniversary, my love.</p>
+    <p class="letter-signature">Forever yours ❤️</p>
+  </div>
+</section>
+
+<footer>Made with ❤ just for you</footer>
+
+<script>
+  /* ── Customise these ──────────────────────────── */
+  const HER_NAME       = "My Love";        // e.g. "Priya"
+  const ANNIVERSARY    = "2024-04-28";     // YYYY-MM-DD  ← your start date
+  /* ─────────────────────────────────────────────── */
+
+  document.getElementById('herName').textContent = HER_NAME;
+
+  /* ── Countdown ─────────────────────────────────── */
+  function updateTimer() {
+    const start = new Date(ANNIVERSARY);
+    const now   = new Date();
+    const diff  = now - start;
+    if (diff < 0) return;
+
+    let rem = diff;
+    const years  = Math.floor(rem / (365.25 * 24 * 3600 * 1000)); rem -= years  * 365.25 * 24 * 3600 * 1000;
+    const months = Math.floor(rem / (30.44  * 24 * 3600 * 1000)); rem -= months * 30.44  * 24 * 3600 * 1000;
+    const days   = Math.floor(rem / (        24 * 3600 * 1000));   rem -= days   *         24 * 3600 * 1000;
+    const hours  = Math.floor(rem / (             3600 * 1000));   rem -= hours  *              3600 * 1000;
+    const mins   = Math.floor(rem / (               60 * 1000));   rem -= mins   *                60 * 1000;
+    const secs   = Math.floor(rem / 1000);
+
+    document.getElementById('tYears').textContent  = years;
+    document.getElementById('tMonths').textContent = months;
+    document.getElementById('tDays').textContent   = days;
+    document.getElementById('tHours').textContent  = String(hours).padStart(2,'0');
+    document.getElementById('tMins').textContent   = String(mins).padStart(2,'0');
+    document.getElementById('tSecs').textContent   = String(secs).padStart(2,'0');
+  }
+  updateTimer();
+  setInterval(updateTimer, 1000);
+
+  /* ── Floating hearts canvas ─────────────────────── */
+  const canvas = document.getElementById('heartCanvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const HEARTS = Array.from({length: 30}, () => newHeart());
+
+  function newHeart(fromBottom = false) {
+    return {
+      x: Math.random() * (W || window.innerWidth),
+      y: fromBottom ? (H || window.innerHeight) + 20 : Math.random() * (H || window.innerHeight),
+      size: 8 + Math.random() * 18,
+      speed: 0.4 + Math.random() * 0.8,
+      opacity: 0.15 + Math.random() * 0.45,
+      drift: (Math.random() - 0.5) * 0.5,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.01 + Math.random() * 0.02,
+    };
+  }
+
+  function drawHeart(x, y, size, opacity) {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = '#ff4b6e';
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.bezierCurveTo(x, y - size * 0.3, x - size * 0.5, y - size * 0.8, x - size * 0.5, y - size * 0.4);
+    ctx.bezierCurveTo(x - size * 0.5, y - size * 0.9, x, y - size * 1.1, x, y - size * 0.6);
+    ctx.bezierCurveTo(x, y - size * 1.1, x + size * 0.5, y - size * 0.9, x + size * 0.5, y - size * 0.4);
+    ctx.bezierCurveTo(x + size * 0.5, y - size * 0.8, x, y - size * 0.3, x, y);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animateHearts() {
+    ctx.clearRect(0, 0, W, H);
+    HEARTS.forEach((h, i) => {
+      h.wobble += h.wobbleSpeed;
+      h.x += Math.sin(h.wobble) * 0.5 + h.drift;
+      h.y -= h.speed;
+      if (h.y < -30) { HEARTS[i] = newHeart(true); }
+      drawHeart(h.x, h.y, h.size, h.opacity);
+    });
+    requestAnimationFrame(animateHearts);
+  }
+  animateHearts();
+
+  /* ── Scroll-reveal for timeline cards ──────────── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.25 });
+
+  document.querySelectorAll('.memory-card').forEach(c => observer.observe(c));
+
+  /* ── "No" button escape ─────────────────────────── */
+  function escapNo(btn) {
+    const section = document.getElementById('proposal');
+    const sr = section.getBoundingClientRect();
+    const br = btn.getBoundingClientRect();
+    const margin = 40;
+    let nx = Math.random() * (sr.width  - br.width  - margin * 2) + margin + sr.left;
+    let ny = Math.random() * (sr.height - br.height - margin * 2) + margin + sr.top;
+    btn.style.position = 'fixed';
+    btn.style.left = nx + 'px';
+    btn.style.top  = ny + 'px';
+    btn.style.zIndex = 10;
+    btn.style.transition = 'left 0.25s, top 0.25s';
+  }
+
+  /* ── Yes handler + confetti ─────────────────────── */
+  function onYes() {
+    document.getElementById('btnRow').style.display = 'none';
+    const msg = document.getElementById('responseMsg');
+    msg.textContent = '🎉 I knew you would say yes! 💖';
+    msg.style.display = 'block';
+    launchConfetti();
+    // second burst after 1s
+    setTimeout(launchConfetti, 1000);
+    setTimeout(launchConfetti, 2000);
+  }
+
+  const CONFETTI_COLORS = ['#ff4b6e','#ffb3c1','#f7c948','#a78bfa','#34d399','#fff'];
+
+  function launchConfetti() {
+    for (let i = 0; i < 80; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        background: ${CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]};
+        width: ${6 + Math.random() * 10}px;
+        height: ${6 + Math.random() * 10}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 0.5}s;
+      `;
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
+  /* ── Cursor sparkles ────────────────────────────── */
+  document.addEventListener('mousemove', e => {
+    if (Math.random() > 0.85) {
+      const dot = document.createElement('div');
+      dot.style.cssText = `
+        position:fixed; left:${e.clientX}px; top:${e.clientY}px;
+        width:6px; height:6px; border-radius:50%;
+        background:${CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)]};
+        pointer-events:none; z-index:9998;
+        animation:confettiFall ${0.6 + Math.random()}s ease forwards;
+      `;
+      document.body.appendChild(dot);
+      dot.addEventListener('animationend', () => dot.remove());
+    }
+  });
+</script>
+</body>
+</html>
